@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name="jobs")
+@Table(name = "jobs")
 @Builder
 public class Job {
 
@@ -22,7 +22,7 @@ public class Job {
     UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="media_file_id",nullable = false)
+    @JoinColumn(name = "media_file_id", nullable = false)
     MediaFile mediaFile;
 
     UUID userId;
