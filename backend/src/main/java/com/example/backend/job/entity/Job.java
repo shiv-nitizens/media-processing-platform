@@ -1,6 +1,7 @@
 package com.example.backend.job.entity;
 
 import com.example.backend.job.model.JobStatus;
+import com.example.backend.job.model.RequestedOperation;
 import com.example.backend.media.entity.MediaFile;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,9 @@ public class Job {
     MediaFile mediaFile;
 
     UUID userId;
+
+    @Enumerated(EnumType.STRING)
+    RequestedOperation operation;
 
     @Enumerated(EnumType.STRING)
     JobStatus status;

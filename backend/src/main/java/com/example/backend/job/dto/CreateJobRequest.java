@@ -1,5 +1,6 @@
 package com.example.backend.job.dto;
 
+import com.example.backend.job.model.RequestedOperation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,4 +15,5 @@ import java.util.UUID;
 public class CreateJobRequest {
     UUID userId;
     UUID mediaFileId;
+    RequestedOperation operation;
 }

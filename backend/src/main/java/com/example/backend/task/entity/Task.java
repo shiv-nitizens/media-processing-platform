@@ -41,12 +41,12 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "dependency_id")
     )
     @Builder.Default
-    private List<Task> dependencies = new ArrayList<>();
+    List<Task> dependencies = new ArrayList<>();
 
     String taskConfig;
 
     @Builder.Default
-    private int retryCount = 0;
+    int retryCount = 0;
 
     UUID workerId;
     Instant createdAt;

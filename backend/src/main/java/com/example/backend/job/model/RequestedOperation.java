@@ -1,8 +1,8 @@
 package com.example.backend.job.model;
 
 public enum RequestedOperation {
-    TRANSCRIPT,
-    SUBTITLE,
-    CAPTIONED_VIDEO,
-    SUMMARY
+    GENERATE_TRANSCRIPT,
+    GENERATE_SUBTITLE,
+    GENERATE_CAPTIONED_VIDEO,
+    GENERATE_SUMMARY
 }
