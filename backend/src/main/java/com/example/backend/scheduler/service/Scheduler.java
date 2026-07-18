@@ -4,6 +4,7 @@ import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import com.example.backend.task.repository.TaskRepository;
 import com.example.backend.worker.service.Worker;
+import com.example.backend.workflow.service.WorkFlowCoordinator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +15,12 @@ public class Scheduler {
 
     TaskRepository taskRepository;
     Worker worker;
+    WorkFlowCoordinator workFlowCoordinator;
 
-    public Scheduler(TaskRepository taskRepository , Worker worker){
+    public Scheduler(TaskRepository taskRepository , Worker worker,WorkFlowCoordinator workFlowCoordinator){
         this.worker = worker;
         this.taskRepository = taskRepository;
+        this.workFlowCoordinator = workFlowCoordinator;
     }
 
     public void tick(){
@@ -31,7 +34,7 @@ public class Scheduler {
         taskRepository.save(task);
 
         TaskStatus result = worker.execute(task);
-        System.out.println(result);
+        workFlowCoordinator.handleCompletion(task,result);
 
     }
 
