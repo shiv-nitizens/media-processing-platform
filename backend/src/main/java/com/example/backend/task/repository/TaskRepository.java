@@ -1,5 +1,6 @@
 package com.example.backend.task.repository;
 
+import com.example.backend.job.entity.Job;
 import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,4 +20,6 @@ public interface TaskRepository extends JpaRepository<Task, UUID>{
     WHERE :task MEMBER OF t.dependencies
 """)
     List<Task> findTasksDependingOn(Task task);
+
+    boolean existsByJobAndStatusNot(Job job , TaskStatus status);
 }

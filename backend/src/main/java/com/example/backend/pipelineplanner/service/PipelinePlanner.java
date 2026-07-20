@@ -20,15 +20,11 @@ public class PipelinePlanner {
     }
 
     public void plan(Job job) {
-
         switch (job.getOperation()) {
-
             case GENERATE_SUBTITLE ->
                     createSubtitlePipeline(job);
-
             case GENERATE_SUMMARY ->
                     createSummaryPipeline(job);
-
             case GENERATE_CAPTIONED_VIDEO ->
                     createCaptionedVideoPipeline(job);
         }

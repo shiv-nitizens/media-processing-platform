@@ -1,6 +1,7 @@
 package com.example.backend.workflow.service;
 
 import com.example.backend.dependency.service.DependencyResolver;
+import com.example.backend.job.service.JobStatusManager;
 import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import com.example.backend.task.repository.TaskRepository;
@@ -13,10 +14,13 @@ public class WorkFlowCoordinator {
 
     TaskRepository taskRepository;
     DependencyResolver dependencyResolver;
+    JobStatusManager jobStatusManager;
+    static final int MAX_RETRIES = 3;
 
-    public WorkFlowCoordinator(TaskRepository taskRepository,DependencyResolver dependencyResolver){
+    public WorkFlowCoordinator(TaskRepository taskRepository,DependencyResolver dependencyResolver,JobStatusManager jobStatusManager){
         this.taskRepository = taskRepository;
         this.dependencyResolver = dependencyResolver;
+        this.jobStatusManager = jobStatusManager;
     }
 
     public void handleCompletion(Task task , TaskStatus result){
@@ -26,11 +30,23 @@ public class WorkFlowCoordinator {
                 task.setUpdatedAt(Instant.now());
                 taskRepository.save(task);
                 dependencyResolver.unlockTasks(task);
+                jobStatusManager.updateJobStatus(task);
             }
             case FAILED -> {
-                task.setStatus(TaskStatus.FAILED);
-                task.setUpdatedAt(Instant.now());
-                taskRepository.save(task);
+
+                if(task.getRetryCount() < MAX_RETRIES){
+                    task.setRetryCount(task.getRetryCount() + 1);
+                    task.setStatus(TaskStatus.READY);
+                    task.setUpdatedAt(Instant.now());
+
+                    taskRepository.save(task);
+                }else{
+                    task.setStatus(TaskStatus.FAILED);
+                    task.setUpdatedAt(Instant.now());
+                    taskRepository.save(task);
+                    jobStatusManager.markJobFailed(task);
+                }
+
             }
 
         }
