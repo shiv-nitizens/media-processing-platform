@@ -5,6 +5,7 @@ import com.example.backend.task.model.TaskStatus;
 import com.example.backend.task.repository.TaskRepository;
 import com.example.backend.worker.service.Worker;
 import com.example.backend.workflow.service.WorkFlowCoordinator;
+import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ public class Scheduler {
         this.workFlowCoordinator = workFlowCoordinator;
     }
 
+    @Scheduled(fixedDelay = 2000)
+    @Transactional
     public void tick(){
         System.out.println("Scheduler tick called");
         Optional<Task> optionalTask = taskRepository.findTopByStatusOrderByCreatedAtAsc(TaskStatus.READY);
