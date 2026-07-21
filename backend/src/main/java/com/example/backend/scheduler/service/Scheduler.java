@@ -34,13 +34,12 @@ public class Scheduler {
     @Transactional
     public void tick(){
         System.out.println("Scheduler tick called");
-        Optional<Task> optionalTask = taskRepository.findTopByStatusOrderByCreatedAtAsc(TaskStatus.READY);
+        Optional<Task> optionalTask = taskRepository.findNextReadyTaskForUpdate(TaskStatus.READY.name());
         if(optionalTask.isEmpty()){
             return;
         }
         Task task = optionalTask.get();
         task.setStatus(TaskStatus.RUNNING);
-
         Job job = task.getJob();
         if(job.getStatus() == JobStatus.CREATED){
             job.setStatus(JobStatus.PROCESSING);

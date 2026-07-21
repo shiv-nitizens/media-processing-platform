@@ -5,6 +5,7 @@ import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,15 @@ import java.util.UUID;
 
 public interface TaskRepository extends JpaRepository<Task, UUID>{
 
-    Optional<Task> findTopByStatusOrderByCreatedAtAsc(TaskStatus status);
+    @Query(value = """
+    select *
+    From tasks
+    where status = :status
+    order by created_at asc
+    LIMIT 1 
+    FOR update Skip Locked          
+    """,nativeQuery = true)
+    Optional<Task> findNextReadyTaskForUpdate(@Param("status") String status);
 
     @Query("""
     SELECT t
