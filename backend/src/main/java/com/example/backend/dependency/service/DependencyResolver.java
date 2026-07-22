@@ -4,6 +4,7 @@ import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import com.example.backend.task.repository.TaskRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,10 +17,10 @@ public class DependencyResolver {
         this.taskRepository = taskRepository;
     }
 
+    @Transactional
     public void unlockTasks(Task completedTask){
         List<Task> dependentTasks = taskRepository.findTasksDependingOn(completedTask);
         for (Task dependentTask : dependentTasks) {
-
             boolean ready =
                     dependentTask.getDependencies()
                             .stream()

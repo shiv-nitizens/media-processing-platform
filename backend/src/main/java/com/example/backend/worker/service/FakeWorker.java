@@ -10,11 +10,14 @@ import java.util.concurrent.TimeUnit;
 public class FakeWorker implements Worker {
 
     @Override
-    public TaskStatus execute(Task task) {
-
-        System.out.println("[FakeWorker] Executing " + task.getType());
-
-        return TaskStatus.FAILED;
+    public TaskStatus execute(Task task){
+        try{
+            TimeUnit.SECONDS.sleep(10);
+        }catch(InterruptedException e){
+            Thread.currentThread().interrupt();
+            return TaskStatus.FAILED;
+        }
+        return TaskStatus.SUCCESS;
     }
 }
 

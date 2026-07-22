@@ -7,6 +7,7 @@ import com.example.backend.task.entity.Task;
 import com.example.backend.task.model.TaskStatus;
 import com.example.backend.task.repository.TaskRepository;
 import com.example.backend.worker.service.Worker;
+import com.example.backend.workerDispatcher.service.WorkerDispatcher;
 import com.example.backend.workflow.service.WorkFlowCoordinator;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,39 +20,34 @@ import java.util.Optional;
 public class Scheduler {
 
     TaskRepository taskRepository;
-    Worker worker;
-    WorkFlowCoordinator workFlowCoordinator;
     JobRepository jobRepository;
+    WorkerDispatcher workerDispatcher;
 
-    public Scheduler(TaskRepository taskRepository , Worker worker,WorkFlowCoordinator workFlowCoordinator ,JobRepository jobRepository){
-        this.worker = worker;
+    public Scheduler(TaskRepository taskRepository ,JobRepository jobRepository,WorkerDispatcher workerDispatcher){
         this.taskRepository = taskRepository;
-        this.workFlowCoordinator = workFlowCoordinator;
         this.jobRepository = jobRepository;
+        this.workerDispatcher = workerDispatcher;
     }
 
     @Scheduled(fixedDelay = 2000)
     @Transactional
     public void tick(){
-        System.out.println("Scheduler tick called");
-        Optional<Task> optionalTask = taskRepository.findNextReadyTaskForUpdate(TaskStatus.READY.name());
-        if(optionalTask.isEmpty()){
-            return;
+        while(true){
+            Optional<Task> optionalTask = taskRepository.findNextReadyTaskForUpdate(TaskStatus.READY.name());
+            if(optionalTask.isEmpty()){
+                return;
+            }
+            Task task = optionalTask.get();
+            task.setStatus(TaskStatus.RUNNING);
+            Job job = task.getJob();
+            if(job.getStatus() == JobStatus.CREATED){
+                job.setStatus(JobStatus.PROCESSING);
+                job.setUpdatedAt(Instant.now());
+                jobRepository.save(job);
+            }
+            taskRepository.save(task);
+            workerDispatcher.dispatch(task);
         }
-        Task task = optionalTask.get();
-        task.setStatus(TaskStatus.RUNNING);
-        Job job = task.getJob();
-        if(job.getStatus() == JobStatus.CREATED){
-            job.setStatus(JobStatus.PROCESSING);
-            job.setUpdatedAt(Instant.now());
-
-            jobRepository.save(job);
-        }
-
-        taskRepository.save(task);
-
-        TaskStatus result = worker.execute(task);
-        workFlowCoordinator.handleCompletion(task,result);
 
     }
 
