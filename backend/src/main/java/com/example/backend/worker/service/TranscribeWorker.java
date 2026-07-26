@@ -9,6 +9,7 @@ import com.example.backend.task.model.TaskType;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -28,12 +29,18 @@ public class TranscribeWorker implements Worker{
     public TaskStatus execute(Task task){
 
         try{
+            Optional<Artifact> extractAudio = artifactRepository.findByJobAndType(task.getJob(),ArtifactType.AUDIO);
+
+            if(extractAudio.isEmpty()){
+                System.out.println("Audio artifact not found for usage by transcribe worker");
+                return TaskStatus.FAILED;
+            }
             TimeUnit.SECONDS.sleep(10);
             Artifact artifact = Artifact.builder()
                     .createdAt(Instant.now())
                     .producedByTask(task)
                     .job(task.getJob())
-                    .location("artifacts/" + task.getJob().getId() + "/audio.wav")
+                    .location("artifacts/" + task.getJob().getId() + "/transcript.json")
                     .type(ArtifactType.TRANSCRIPT)
                     .build();
 
