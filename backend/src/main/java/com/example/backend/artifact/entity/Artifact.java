@@ -5,7 +5,6 @@ import com.example.backend.job.entity.Job;
 import com.example.backend.task.entity.Task;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.Fetch;
 
 import java.time.Instant;
 import java.util.UUID;
