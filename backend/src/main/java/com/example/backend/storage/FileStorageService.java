@@ -30,4 +30,17 @@ public class FileStorageService {
         );
         return transcriptFile;
     }
+    public WhisperTranscriptResponse readTranscript(Path transcriptPath) throws IOException{
+        return objectMapper.readValue(
+                transcriptPath.toFile(),
+                WhisperTranscriptResponse.class
+        );
+    }
+    public Path saveSubtitle(UUID jobId , String subtitleContent) throws IOException{
+        Path jobFolder = Paths.get("storage","jobs",jobId.toString());
+        Files.createDirectories(jobFolder);
+        Path subtitleFile = jobFolder.resolve("subtitle.srt");
+        Files.writeString(subtitleFile,subtitleContent);
+        return subtitleFile;
+    }
 }

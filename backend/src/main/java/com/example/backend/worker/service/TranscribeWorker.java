@@ -46,8 +46,7 @@ public class TranscribeWorker implements Worker{
             Artifact audioArtifact = extractAudio.get();
 
             Path audioPath = Paths.get(audioArtifact.getLocation());
-            WhisperTranscriptResponse response =
-                    aiServiceClient.transcribe(audioPath);
+            WhisperTranscriptResponse response = aiServiceClient.transcribe(audioPath);
 
             Path transcriptPath =
                     fileStorageService.saveTranscript(
