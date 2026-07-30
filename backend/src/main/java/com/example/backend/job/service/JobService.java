@@ -1,5 +1,8 @@
 package com.example.backend.job.service;
 
+import com.example.backend.artifact.entity.Artifact;
+import com.example.backend.artifact.model.ArtifactType;
+import com.example.backend.artifact.repository.ArtifactRepository;
 import com.example.backend.job.dto.CreateJobRequest;
 import com.example.backend.job.dto.JobResponse;
 import com.example.backend.job.entity.Job;
@@ -19,11 +22,13 @@ public class JobService{
     JobRepository jobRepository;
     MediaFileRepository mediaFileRepository;
     PipelinePlanner pipelinePlanner;
+    ArtifactRepository artifactRepository;
 
-    public JobService(JobRepository jobRepository, MediaFileRepository mediaFileRepository,PipelinePlanner pipelinePlanner){
+    public JobService(JobRepository jobRepository, MediaFileRepository mediaFileRepository,PipelinePlanner pipelinePlanner,ArtifactRepository artifactRepository){
         this.jobRepository = jobRepository;
         this.mediaFileRepository = mediaFileRepository;
         this.pipelinePlanner = pipelinePlanner;
+        this.artifactRepository = artifactRepository;
     }
 
     @Transactional
@@ -45,7 +50,14 @@ public class JobService{
         job.setOperation(createJobRequest.getOperation());
 
         Job savedJob = jobRepository.save(job);
-
+        Artifact videoArtifact = Artifact.builder()
+                .job(savedJob)
+                .type(ArtifactType.VIDEO)
+                .location(mediaFile.getFilePath())
+                .createdAt(Instant.now())
+                .build();
+        Artifact saved = artifactRepository.save(videoArtifact);
+        System.out.println("Saved VIDEO artifact id = " + saved.getId());
         pipelinePlanner.plan(savedJob);
 
         return new JobResponse(

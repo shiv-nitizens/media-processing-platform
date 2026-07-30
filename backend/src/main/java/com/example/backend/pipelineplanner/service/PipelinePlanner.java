@@ -58,10 +58,20 @@ public class PipelinePlanner {
                 .updatedAt(now)
                 .build();
 
+        Task embedSubtitle = Task.builder()
+                        .job(job)
+                                .type(TaskType.EMBED_SUBTITLE)
+                                        .status(TaskStatus.WAITING)
+                                                .taskConfig("{}")
+                                                        .createdAt(now)
+                                                                .updatedAt(now)
+                                                                        .build();
+
         transcribe.getDependencies().add(extract);
         subtitle.getDependencies().add(transcribe);
+        embedSubtitle.getDependencies().add(subtitle);
 
-        taskRepository.saveAll(List.of(extract, transcribe, subtitle));
+        taskRepository.saveAll(List.of(extract, transcribe, subtitle,embedSubtitle));
     }
     void createSummaryPipeline(Job job) {
 

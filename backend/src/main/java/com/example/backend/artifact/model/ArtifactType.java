@@ -4,5 +4,6 @@ public enum ArtifactType {
     VIDEO,
     AUDIO,
     TRANSCRIPT,
-    SUBTITLE
+    SUBTITLE,
+    CAPTIONED_VIDEO
 }

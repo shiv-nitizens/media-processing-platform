@@ -1,5 +1,7 @@
 package com.example.backend.media.service;
 
+import com.example.backend.artifact.entity.Artifact;
+import com.example.backend.artifact.model.ArtifactType;
 import com.example.backend.media.dto.MediaUploadResponse;
 import com.example.backend.media.entity.MediaFile;
 import com.example.backend.media.repository.MediaFileRepository;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -61,7 +64,6 @@ public class MediaService {
                 .build();
 
         mediaFile = mediaFileRepository.save(mediaFile);
-
         return MediaUploadResponse.builder()
                 .id(mediaFile.getId())
                 .originalFileName(mediaFile.getOriginalFileName())

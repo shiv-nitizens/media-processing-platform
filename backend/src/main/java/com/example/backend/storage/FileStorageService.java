@@ -43,4 +43,9 @@ public class FileStorageService {
         Files.writeString(subtitleFile,subtitleContent);
         return subtitleFile;
     }
+    public Path getCaptionedVideoPath(UUID jobId) throws IOException {
+        Path jobFolder = Paths.get("storage", "jobs", jobId.toString());
+        Files.createDirectories(jobFolder);
+        return jobFolder.resolve("captioned-video.mp4");
+    }
 }
