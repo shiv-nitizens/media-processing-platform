@@ -48,4 +48,19 @@ public class FileStorageService {
         Files.createDirectories(jobFolder);
         return jobFolder.resolve("captioned-video.mp4");
     }
+    public Path getChunkDirectory(UUID jobId) throws IOException {
+        Path chunkDirectory = Paths.get("storage", "jobs",jobId.toString(),"chunks");
+        Files.createDirectories(chunkDirectory);
+        return chunkDirectory;
+    }
+    public Path saveChunkTranscript(UUID jobId, UUID artifactId, WhisperTranscriptResponse transcript) throws IOException {
+        Path transcriptDir = Paths.get("storage", "jobs", jobId.toString(), "chunk-transcripts");
+        Files.createDirectories(transcriptDir);
+        Path transcriptFile = transcriptDir.resolve(artifactId + ".json");
+        objectMapper.writeValue(
+                transcriptFile.toFile(),
+                transcript
+        );
+        return transcriptFile;
+    }
 }

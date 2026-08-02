@@ -19,7 +19,8 @@ public class DependencyResolver {
 
     @Transactional
     public void unlockTasks(Task completedTask){
-        List<Task> dependentTasks = taskRepository.findTasksDependingOn(completedTask);
+        List<Task> dependentTasks =
+                taskRepository.findTasksDependingOn(completedTask.getId());
         for (Task dependentTask : dependentTasks) {
             boolean ready =
                     dependentTask.getDependencies()

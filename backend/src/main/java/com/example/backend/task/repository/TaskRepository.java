@@ -24,11 +24,12 @@ public interface TaskRepository extends JpaRepository<Task, UUID>{
     Optional<Task> findNextReadyTaskForUpdate(@Param("status") String status);
 
     @Query("""
-    SELECT t
-    FROM Task t
-    WHERE :task MEMBER OF t.dependencies
+SELECT t
+FROM Task t
+JOIN t.dependencies d
+WHERE d.id = :dependencyId
 """)
-    List<Task> findTasksDependingOn(Task task);
+    List<Task> findTasksDependingOn(@Param("dependencyId") UUID dependencyId);
 
     boolean existsByJobAndStatusNot(Job job , TaskStatus status);
 }

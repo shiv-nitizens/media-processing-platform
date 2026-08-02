@@ -17,8 +17,10 @@ import java.util.Optional;
 
 @Service
 public class EmbedSubtitleWorker implements Worker {
+
     ArtifactRepository artifactRepository;
     FileStorageService fileStorageService;
+
     public EmbedSubtitleWorker(ArtifactRepository artifactRepository,FileStorageService fileStorageService) {
         this.artifactRepository = artifactRepository;
         this.fileStorageService = fileStorageService;
@@ -32,39 +34,33 @@ public class EmbedSubtitleWorker implements Worker {
     @Override
     public TaskStatus execute(Task task) {
         try {
-            Optional<Artifact> videoArtifactOpt = artifactRepository.findByJobAndType(task.getJob(),ArtifactType.VIDEO);
+            Optional<Artifact> videoArtifactOpt =
+                    artifactRepository.findByJobAndType(task.getJob(),ArtifactType.VIDEO);
             Optional<Artifact> subtitleArtifactOpt =artifactRepository.findByJobAndType(task.getJob(),ArtifactType.SUBTITLE);
-
 
             if (videoArtifactOpt.isEmpty() || subtitleArtifactOpt.isEmpty()) {
                 System.out.println("Video or Subtitle artifact not found.");
                 return TaskStatus.FAILED;
             }
 
-            Artifact videoArtifact = videoArtifactOpt.get();
-            Artifact subtitleArtifact = subtitleArtifactOpt.get();
+            Path videoPath = Path.of(videoArtifactOpt.get().getLocation());
+            Path subtitlePath = Path.of(subtitleArtifactOpt.get().getLocation());
 
-            Path videoPath = Path.of(videoArtifact.getLocation());
-            Path subtitlePath = Path.of(subtitleArtifact.getLocation());
-
-            Path outputPath =fileStorageService.getCaptionedVideoPath(task.getJob().getId());
+            Path outputPath = fileStorageService.getCaptionedVideoPath(task.getJob().getId());
 
             ProcessBuilder processBuilder = new ProcessBuilder(
                     "ffmpeg",
                     "-y",
                     "-i", videoPath.toString(),
                     "-vf", "subtitles=" + subtitlePath.toString(),
-
                     "-c:v", "h264_nvenc",
-
                     "-c:a", "copy",
-
                     outputPath.toString()
             );
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
             try (BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(process.getInputStream()))) {
+                                 new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println("[FFmpeg] " + line);
@@ -72,7 +68,7 @@ public class EmbedSubtitleWorker implements Worker {
             }
             int exitCode = process.waitFor();
             if (exitCode != 0) {
-                throw new RuntimeException("FFmpeg failed with exit code " + exitCode);
+                return TaskStatus.FAILED;
             }
             Artifact artifact = Artifact.builder()
                     .job(task.getJob())
@@ -83,6 +79,9 @@ public class EmbedSubtitleWorker implements Worker {
                     .build();
             artifactRepository.save(artifact);
             return TaskStatus.SUCCESS;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return TaskStatus.FAILED;
         } catch (Exception e) {
             e.printStackTrace();
             return TaskStatus.FAILED;

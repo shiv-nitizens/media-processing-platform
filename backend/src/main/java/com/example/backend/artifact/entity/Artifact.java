@@ -26,13 +26,15 @@ public class Artifact {
     Job job;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="produced_by_task_id",nullable = false)
+    @JoinColumn(name = "produced_by_task_id")
     Task producedByTask;
 
     @Enumerated(EnumType.STRING)
     ArtifactType type;
 
     String location;
+
+    Integer chunkIndex;
 
     Instant createdAt;
 }

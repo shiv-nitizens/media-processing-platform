@@ -18,7 +18,6 @@ public class PipelinePlanner {
     public PipelinePlanner(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
-
     public void plan(Job job) {
         switch (job.getOperation()) {
             case GENERATE_SUBTITLE ->
@@ -29,7 +28,7 @@ public class PipelinePlanner {
                     createCaptionedVideoPipeline(job);
         }
     }
-    void createSubtitlePipeline(Job job){
+    private void createSubtitlePipeline(Job job) {
         Instant now = Instant.now();
         Task extract = Task.builder()
                 .job(job)
@@ -39,45 +38,23 @@ public class PipelinePlanner {
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
-
-        Task transcribe = Task.builder()
+        Task split = Task.builder()
                 .job(job)
-                .type(TaskType.TRANSCRIBE_AUDIO)
+                .type(TaskType.SPLIT_AUDIO)
                 .status(TaskStatus.WAITING)
                 .taskConfig("{}")
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
-
-        Task subtitle =   Task.builder()
-                .job(job)
-                .type(TaskType.GENERATE_SUBTITLE)
-                .status(TaskStatus.WAITING)
-                .taskConfig("{}")
-                .createdAt(now)
-                .updatedAt(now)
-                .build();
-
-        Task embedSubtitle = Task.builder()
-                        .job(job)
-                                .type(TaskType.EMBED_SUBTITLE)
-                                        .status(TaskStatus.WAITING)
-                                                .taskConfig("{}")
-                                                        .createdAt(now)
-                                                                .updatedAt(now)
-                                                                        .build();
-
-        transcribe.getDependencies().add(extract);
-        subtitle.getDependencies().add(transcribe);
-        embedSubtitle.getDependencies().add(subtitle);
-
-        taskRepository.saveAll(List.of(extract, transcribe, subtitle,embedSubtitle));
+        split.getDependencies().add(extract);
+        taskRepository.saveAll(List.of(extract, split));
     }
-    void createSummaryPipeline(Job job) {
+
+    private void createSummaryPipeline(Job job) {
 
     }
 
-    void createCaptionedVideoPipeline(Job job) {
+    private void createCaptionedVideoPipeline(Job job) {
 
     }
 }
