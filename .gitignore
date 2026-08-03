@@ -5,3 +5,7 @@ backend/out/
 backend/*.iml
 
 .env
+
+__pycache__/
+*.pyc
+temp/

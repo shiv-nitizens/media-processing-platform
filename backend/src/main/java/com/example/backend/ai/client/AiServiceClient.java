@@ -1,5 +1,6 @@
 package com.example.backend.ai.client;
 
+import com.example.backend.ai.model.CapacityResponse;
 import com.example.backend.ai.model.WhisperTranscriptResponse;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
@@ -19,15 +20,25 @@ public class AiServiceClient {
         this.restClient = restClient;
     }
 
-    public WhisperTranscriptResponse transcribe(Path audioPath){
+    public WhisperTranscriptResponse transcribe(Path audioPath) {
+
         FileSystemResource resource = new FileSystemResource(audioPath);
-        MultiValueMap<String , Object> body  = new LinkedMultiValueMap<>();
-        body.add("file",resource);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", resource);
+
         return restClient.post()
                 .uri("/transcribe")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
                 .body(WhisperTranscriptResponse.class);
+    }
+
+    public CapacityResponse getCapacity() {
+        return restClient.get()
+                .uri("/capacity")
+                .retrieve()
+                .body(CapacityResponse.class);
     }
 }
