@@ -1,7 +1,8 @@
 package com.example.backend.ai.client;
 
-import com.example.backend.ai.model.CapacityResponse;
 import com.example.backend.ai.model.WhisperTranscriptResponse;
+import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ public class AiServiceClient {
 
     RestClient restClient;
 
+    @Value("${groq.api.key}")
+    String apiKey;
+
     public AiServiceClient(RestClient restClient) {
         this.restClient = restClient;
     }
@@ -26,19 +30,17 @@ public class AiServiceClient {
 
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("file", resource);
+        body.add("model", "whisper-large-v3-turbo");
+        body.add("response_format", "verbose_json");
+        body.add("timestamp_granularities[]", "segment");
 
-        return restClient.post()
-                .uri("/transcribe")
+        return restClient
+                .post()
+                .uri("/audio/transcriptions")
+                .header("Authorization","Bearer "+apiKey)
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(body)
                 .retrieve()
                 .body(WhisperTranscriptResponse.class);
-    }
-
-    public CapacityResponse getCapacity() {
-        return restClient.get()
-                .uri("/capacity")
-                .retrieve()
-                .body(CapacityResponse.class);
     }
 }
