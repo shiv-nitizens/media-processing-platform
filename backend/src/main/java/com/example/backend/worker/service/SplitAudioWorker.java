@@ -53,7 +53,9 @@ public class SplitAudioWorker implements Worker {
                     "-i", audioPath.toString(),
                     "-f", "segment",
                     "-segment_time", "300",
-                    "-c", "copy",
+                    "-ac", "1",
+                    "-ar", "16000",
+                    "-c:a", "pcm_s16le",
                     chunkDirectory.resolve("chunk_%03d.wav").toString()
             );
             processBuilder.redirectErrorStream(true);

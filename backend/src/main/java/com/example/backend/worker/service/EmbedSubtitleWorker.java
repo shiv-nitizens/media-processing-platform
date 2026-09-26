@@ -52,9 +52,16 @@ public class EmbedSubtitleWorker implements Worker {
                     "ffmpeg",
                     "-y",
                     "-i", videoPath.toString(),
-                    "-vf", "subtitles=" + subtitlePath.toString(),
+
+                    "-vf",
+                    "subtitles=" + subtitlePath.toString() + ",hflip",
+
+                    "-map", "0:v:0",
+                    "-map", "0:a:0",
+
                     "-c:v", "h264_nvenc",
                     "-c:a", "copy",
+
                     outputPath.toString()
             );
             processBuilder.redirectErrorStream(true);
